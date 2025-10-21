@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>לוח בקרה לסדנה - 90 דקות</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            direction: rtl;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .dashboard {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 20px;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .sidebar h2 {
+            color: #667eea;
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .timer-display {
+            background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .nav-item {
+            padding: 12px 15px;
+            margin: 8px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            border-right: 4px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: #e9ecef;
+            transform: translateX(-5px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-right: 4px solid #4CAF50;
+            font-weight: bold;
+        }
+
+        .nav-item .time {
+            font-size: 0.85em;
+            opacity: 0.8;
+            display: block;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            min-height: 600px;
+        }
+
+        .slide {
+            display: none;
+            animation: slideIn 0.4s ease;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .slide-header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .slide-header .time-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 0.9em;
+        }
+
+        .content-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-right: 5px solid #4CAF50;
+        }
+
+        .content-section h3 {
+            color: #2E7D32;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .speech-box {
+            background: #E3F2FD;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-right: 4px solid #2196F3;
+            font-size: 1.05em;
+            line-height: 1.8;
+            white-space: pre-line;
+        }
+
+        .speech-box::before {
+            content: "🎤 ";
+            font-size: 1.3em;
+        }
+
+        .action-box {
+            background: #E8F5E9;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-right: 4px solid #4CAF50;
+        }
+
+        .action-box::before {
+            content: "✅ ";
+            font-size: 1.3em;
+        }
+
+        .tech-box {
+            background: #FFF3E0;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-right: 4px solid #FF9800;
+        }
+
+        .tech-box::before {
+            content: "🖥️ ";
+            font-size: 1.3em;
+        }
+
+        .tip-box {
+            background: #F3E5F5;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-right: 4px solid #9C27B0;
+        }
+
+        .tip-box::before {
+            content: "💡 ";
+            font-size: 1.3em;
+        }
+
+        .warning-box {
+            background: #FFEBEE;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-right: 4px solid #F44336;
+        }
+
+        .warning-box::before {
+            content: "⚠️ ";
+            font-size: 1.3em;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .tool-link {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            display: block;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .tool-link:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(76, 175, 80, 0.4);
+        }
+
+        .checklist {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .checklist-item {
+            padding: 10px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+        }
+
+        .checklist-item input {
+            margin-left: 12px;
+            transform: scale(1.3);
+            cursor: pointer;
+        }
+
+        .checklist-item label {
+            cursor: pointer;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            gap: 15px;
+        }
+
+        .nav-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .nav-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .prompt-template {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px dashed #667eea;
+            margin: 15px 0;
+            font-family: monospace;
+            direction: rtl;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .timer-btn {
+            background: rgba(255,255,255,0.3);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .timer-btn:hover {
+            background: rgba(255,255,255,0.5);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: right;
+        }
+
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .progress-indicator {
+            background: #e9ecef;
+            height: 8px;
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+
+        .demo-steps {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .demo-step {
+            padding: 15px;
+            margin: 10px 0;
+            border-right: 3px solid #667eea;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .example-prompt {
+            background: #E8F5E9;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border: 2px solid #4CAF50;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="sidebar">
+            <h2>🎯 ניווט מהיר</h2>
+            
+            <div class="timer-display" id="mainTimer">00:00</div>
+            <div class="timer-controls">
+                <button class="timer-btn" onclick="startTimer()">▶️</button>
+                <button class="timer-btn" onclick="pauseTimer()">⏸️</button>
+                <button class="timer-btn" onclick="resetTimer()">🔄</button>
+            </div>
+
+            <div style="margin: 20px 0;">
+                <div class="progress-indicator">
+                    <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+                </div>
+                <div style="text-align: center; font-size: 0.9em; color: #666;">
+                    התקדמות: <span id="progressText">0%</span>
+                </div>
+            </div>
+
+            <div class="nav-item active" onclick="showSlide(0)">
+                <strong>📊 מבט על</strong>
+                <span class="time">התחלה</span>
+            </div>
+            <div class="nav-item" onclick="showSlide(1)">
+                <strong>שקף 1: פתיחה</strong>
+                <span class="time">0-5 דק'</span>
+            </div>
+            <div class="nav-item" onclick="showSlide(2)">
+                <strong>שקף 2-4: פרומפטינג</strong>
+                <span class="time">5-15 דק'</span>
+            </div>
+            <div class="nav-item" onclick="showSlide(3)">
+                <strong>שקף 5-10: הדגמה</strong>
+                <span class="time">15-30 דק'</span>
+            </div>
+            <div class="nav-item" onclick="showSlide(4)">
+                <strong>שקף 11-12: עבודה</strong>
+                <span class="time">30-70 דק'</span>
+            </div>
+            <div class="nav-item" onclick="showSlide(5)">
+                <strong>שקף 13-14: שיתוף</strong>
+                <span class="time">70-85 דק'</span>
+            </div>
+            <div class="nav-item" onclick="showSlide(6)">
+                <strong>שקף 15-16: סיכום</strong>
+                <span class="time">85-90 דק'</span>
+            </div>
+            <div class="nav-item" onclick="showSlide(7)">
+                <strong>✅ צ'ק ליסט</strong>
+                <span class="time">בדיקה</span>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- שקף 0: מבט על -->
+            <div class="slide active">
+                <div class="slide-header">
+                    <h1>📊 מבט על הסדנה</h1>
+                    <span class="time-badge">90 דקות | הכנה</span>
+                </div>
+
+                <div class="content-section">
+                    <h3>🎯 מטרת הסדנה</h3>
+                    <p style="font-size: 1.1em; line-height: 1.8;">
+                        בסוף הסדנה, כל משתתף יצא עם <strong>תוכנית עבודה מוכנה</strong> 
+                        לפרויקט חברתי/התנדבותי שהוא יכול להתחיל ליישם מיד.
+                    </p>
+                </div>
+
+                <div class="content-section">
+                    <h3>⏰ חלוקת זמנים</h3>
+                    <table>
+                        <tr>
+                            <th>זמן</th>
+                            <th>נושא</th>
+                            <th>פעולה</th>
+                        </tr>
+                        <tr>
+                            <td>0-5 דק'</td>
+                            <td>פתיחה</td>
+                            <td>הצגה עצמית + מטרה מרכזית</td>
+                        </tr>
+                        <tr>
+                            <td>5-15 דק'</td>
+                            <td>למידה</td>
+                            <td>מה זה פרומפט וכיצד כותבים</td>
+                        </tr>
+                        <tr>
+                            <td>15-30 דק'</td>
+                            <td>הדגמה</td>
+                            <td>הדגמה חיה עם 5 הכלים</td>
+                        </tr>
+                        <tr>
+                            <td>30-70 דק'</td>
+                            <td>התנסות</td>
+                            <td>עבודה עצמאית - בניית תוצר</td>
+                        </tr>
+                        <tr>
+                            <td>70-85 דק'</td>
+                            <td>שיתוף</td>
+                            <td>הצגות + שאלות ותשובות</td>
+                        </tr>
+                        <tr>
+                            <td>85-90 דק'</td>
+                            <td>סיכום</td>
+                            <td>תכנון המשך וסגירה</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="content-section">
+                    <h3>🛠️ 5 הכלים - קישורים מהירים</h3>
+                    <div class="tools-grid">
+                        <a href="https://claude.ai" target="_blank" class="tool-link">
+                            🤖 Claude<br>
+                            <small>תכנון מפורט ומדויק</small>
+                        </a>
+                        <a href="https://chat.openai.com" target="_blank" class="tool-link">
+                            💬 ChatGPT<br>
+                            <small>רעיונות מהירים</small>
+                        </a>
+                        <a href="https://gemini.google.com" target="_blank" class="tool-link">
+                            🔷 Gemini<br>
+                            <small>מחקר ואינטגרציה</small>
+                        </a>
+                        <a href="https://lovable.dev" target="_blank" class="tool-link">
+                            🌐 Lovable<br>
+                            <small>בניית אתרים</small>
+                        </a>
+                        <a href="https://www.canva.com" target="_blank" class="tool-link">
+                            🎨 Canva AI<br>
+                            <small>עיצוב ויזואלי</small>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="tip-box">
+                    <strong>💡 טיפ חשוב:</strong><br>
+                    פתח את כל 5 הכלים בטאבים נפרדים לפני הסדנה!<br>
+                    התחבר מראש לכל הכלים כדי לחסוך זמן.
+                </div>
+            </div>
+
+            <!-- שקף 1: פתיחה -->
+            <div class="slide">
+                <div class="slide-header">
+                    <h1>🎬 שקף 1: פתיחה והצגה</h1>
+                    <span class="time-badge">⏱️ דקות 0-5</span>
+                </div>
+
+                <div class="tech-box">
+                    <strong>מה על המסך:</strong>
+                    <p>שקף פשוט עם השם שלך + כותרת "בינה מלאכותית למעורבות חברתית"</p>
+                </div>
+
+                <div class="speech-box">
+<strong>דקה 0-1: הצגה עצמית</strong>
+
+"שלום לכולם! אני ד"ר אסף אוזן, אני עובד במשרד החינוך 
+באגף חדשנות וטכנולוגיה, ואני עוסק בפיתוח כלי בינה 
+מלאכותית לחינוך.
+
+תודה שהגעתם!"
+                </div>
+
+                <div class="speech-box">
+<strong>דקה 1-2: סקר מהיר</strong>
+
+"כמה מכם כבר השתמשו בבינה מלאכותית? 
+ChatGPT? משהו אחר?"
+
+[ספור ידיים - שים לב למספר]
+
+"מעולה, אז יש כאן ניסיון. 
+ומי שלא - אל דאגה, בעוד שעה וחצי תהיו מומחים."
+                </div>
+
+                <div class="speech-box">
+<strong>דקה 2-4: המטרה המרכזית</strong>
+
+"אז למה אנחנו כאן היום?
+
+המטרה שלנו היא פשוטה:
+🎯 בסוף הסדנה, כל אחד מכם יצא מכאן עם תוכנית עבודה 
+מוכנה לפרויקט התנדבותי או חברתי שהוא רוצה לעשות.
+
+לא סתם רעיונות - תוכנית עבודה אמיתית:
+✅ עם משימות ספציפיות
+✅ עם לוחות זמנים
+✅ עם כלים שתוכלו להמשיך להשתמש בהם לבד
+
+זה מה שאנחנו הולכים לעשות ב-90 הדקות הבאות."
+                </div>
+
+                <div class="action-box">
+                    <strong>צ'ק ליסט למנחה:</strong>
+                    <div class="checklist">
+                        <div class="checklist-item">
+                            <input type="checkbox" id="check1_1">
+                            <label for="check1_1">בדוק שהמיקרופון עובד</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="check1_2">
+                            <label for="check1_2">ודא שכולם רואים את המסך</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="check1_3">
+                            <label for="check1_3">אנרגיה חיובית וחיוך!</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- שקף 2-4: פרומפטינג -->
+            <div class="slide">
+                <div class="slide-header">
+                    <h1>📚 שקפים 2-4: לימוד פרומפטינג</h1>
+                    <span class="time-badge">⏱️ דקות 5-15</span>
+                </div>
+
+                <div class="content-section">
+                    <h3>📝 שקף 2: מה זה פרומפט? (דקות 5-7)</h3>
+                    
+                    <div class="tech-box">
+                        <strong>מה על המסך:</strong>
+                        <p>כותרת: "מה זה פרומפט?"<br>
+                        הגדרה: פרומפט = ההוראה/השאלה שאתם נותנים ל-AI</p>
+                    </div>
+
+                    <div class="speech-box">
+<strong>דקה 5-7: הסבר פרומפט</strong>
+
+"אז קודם כל - מה זה בכלל פרומפט?
+
+זה פשוט המילה המפוצצת למשהו מאוד פשוט:
+פרומפט = מה שאתם כותבים ל-AI
+
+זה יכול להיות:
+- שאלה: 'איך אני מתחיל פרויקט?'
+- בקשה: 'תכתוב לי תכנית עבודה'
+- הוראה: 'צור לי רשימת משימות'
+
+אבל... יש פרומפטים שעובדים טוב, ויש כאלה שלא.
+
+❌ פרומפט רע: 'תן לי תכנית לפרויקט'
+
+✅ פרומפט טוב: 'תכתוב לי תכנית עבודה לפרויקט התנדבותי 
+של ניקיון פארק בשכונה, עבור 15 תלמידי תיכון, למשך חודש 
+אחד, כולל משימות ספציפיות ולוחות זמנים'
+
+רואים את ההבדל?"
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3>🎯 שקף 3: מבנה פרומפט (דקות 7-12)</h3>
+                    
+                    <div class="prompt-template">
+                        <strong>תבנית הפרומפט המנצח:</strong><br><br>
+                        אני רוצה ש[תעשה מה]<br>
+                        עבור [קהל יעד]<br>
+                        המטרה היא [מה]<br>
+                        התוצר צריך לכלול: [רשימה]<br>
+                        הסגנון: [פורמלי/חברי/מקצועי]
+                    </div>
+
+                    <div class="example-prompt">
+<strong>דוגמה מלאה:</strong>
+
+"אני רוצה שתכתוב לי תכנית עבודה מפורטת
+עבור פרויקט התנדבותי של עזרה לקשישים בשכונה
+המטרה היא לארגן 10 תלמידי תיכון שיבקרו 15 קשישים פעם בשבוע
+התוצר צריך לכלול:
+- רשימת משימות שבועית
+- לוח זמנים
+- רשימת ציוד נדרש
+- כללי בטיחות
+הסגנון: פשוט וברור, מתאים לתלמידי תיכון"
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3>💡 שקף 4: טיפים מתקדמים (דקות 12-15)</h3>
+                    
+                    <div class="tip-box">
+                        <strong>5 טיפים זהב:</strong>
+                        <ol style="margin-right: 20px; line-height: 2;">
+                            <li><strong>תהיו ספציפיים</strong> - ככל שיותר פרטים, כך תשובה טובה יותר</li>
+                            <li><strong>תבקשו דוגמאות</strong> - "תן לי 3 דוגמאות"</li>
+                            <li><strong>שפרו בשלבים</strong> - "עכשיו הוסף..." "תוכל לשפר..."</li>
+                            <li><strong>הגדירו פורמט</strong> - "בצורת טבלה" / "כרשימה ממוספרת"</li>
+                            <li><strong>תבקשו הסברים</strong> - "הסבר למה בחרת בפתרון הזה"</li>
+                        </ol>
+                    </div>
+
+                    <div class="warning-box">
+                        <strong>מה לא לעשות:</strong>
+                        <ul style="margin-right: 20px; line-height: 2;">
+                            <li>❌ לא לכתוב פרומפטים מעורפלים</li>
+                            <li>❌ לא לצפות שה-AI יקרא מחשבות</li>
+                            <li>❌ לא לוותר אם התשובה הראשונה לא מושלמת</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- שקף 5-10: הדגמה -->
+            <div class="slide">
+                <div class="slide-header">
+                    <h1>🖥️ שקפים 5-10: הדגמה חיה</h1>
+                    <span class="time-badge">⏱️ דקות 15-30</span>
+                </div>
+
+                <div class="tech-box">
+                    <strong>מה על המסך:</strong>
+                    <p>חלון דפדפן עם 5 טאבים פתוחים:<br>
+                    Claude | ChatGPT | Gemini | Lovable | Canva</p>
+                </div>
+
+                <div class="content-section">
+                    <h3>🎬 תסריט ההדגמה - 15 דקות</h3>
+                    
+                    <div class="speech-box">
+<strong>דקה 15-16: הקדמה</strong>
+
+"עכשיו הדגמה חיה!
+
+אני אראה לכם איך אני משתמש ב-5 כלים האלה 
+כדי לתכנן פרויקט מלא תוך 15 דקות.
+
+הפרויקט לדוגמה: 
+'יום התנדבות לניקיון חוף - 30 תלמידים, יום שישי הקרוב'
+
+שימו לב איך אני כותב את הפרומפטים!"
+                    </div>
+
+                    <div class="demo-steps">
+                        <div class="demo-step">
+                            <strong>🤖 כלי 1: Claude (דקות 16-19)</strong>
+                            <div class="example-prompt" style="margin-top: 10px;">
+הפרומפט:
+"אני מתכנן יום התנדבות לניקיון חוף הים בראשון לציון
+עם 30 תלמידי תיכון ביום שישי הקרוב
+תכתוב לי תכנית עבודה מפורטת הכוללת:
+1. חלוקה לקבוצות ותפקידים
+2. לוח זמנים מדקה 8:00 עד 13:00
+3. רשימת ציוד נדרש
+4. כללי בטיחות
+5. צ'קליסט לרכז"
+                            </div>
+                            <div class="tip-box" style="margin-top: 10px;">
+                                💬 "רואים? Claude נותן תשובה מאוד מפורטת ומובנית. 
+                                זה הכלי הכי טוב לתכנון מדויק!"
+                            </div>
+                        </div>
+
+                        <div class="demo-step">
+                            <strong>💬 כלי 2: ChatGPT (דקות 19-21)</strong>
+                            <div class="example-prompt" style="margin-top: 10px;">
+הפרומפט:
+"תן לי 10 רעיונות יצירתיים להפוך את יום ניקיון 
+החוף למהנה ומעניין עבור תלמידי תיכון"
+                            </div>
+                            <div class="tip-box" style="margin-top: 10px;">
+                                💬 "ChatGPT מעולה לרעיונות מהירים ויצירתיים!"
+                            </div>
+                        </div>
+
+                        <div class="demo-step">
+                            <strong>🔷 כלי 3: Gemini (דקות 21-23)</strong>
+                            <div class="example-prompt" style="margin-top: 10px;">
+הפרומפט:
+"מצא לי מידע על:
+1. חוקי בטיחות לניקיון חוף
+2. ארגונים סביבתיים בראשון לציון
+3. ספקים לשקיות אשפה וכפפות בכמויות גדולות"
+                            </div>
+                            <div class="tip-box" style="margin-top: 10px;">
+                                💬 "Gemini מצוין למחקר ואיתור מידע!"
+                            </div>
+                        </div>
+
+                        <div class="demo-step">
+                            <strong>🌐 כלי 4: Lovable (דקות 23-26)</strong>
+                            <div class="example-prompt" style="margin-top: 10px;">
+הפרומפט:
+"צור לי דף נחיתה פשוט עם:
+- כותרת: יום ניקיון החוף
+- טופס הרשמה לתלמידים
+- מפה לחוף
+- מונה ספירה לאחור
+צבעים: כחול וירוק, עיצוב נקי"
+                            </div>
+                            <div class="tip-box" style="margin-top: 10px;">
+                                💬 "תוך 2 דקות - אתר אינטרנט מלא!"
+                            </div>
+                        </div>
+
+                        <div class="demo-step">
+                            <strong>🎨 כלי 5: Canva AI (דקות 26-29)</strong>
+                            <div class="example-prompt" style="margin-top: 10px;">
+הפרומפט:
+"צור פוסטר A4 ליום ניקיון חוף
+סגנון: צעיר ומזמין
+צבעים: כחול וירוק
+כולל: תאריך, שעה, נקודת מפגש"
+                            </div>
+                            <div class="tip-box" style="margin-top: 10px;">
+                                💬 "תוך שניות - פוסטר מעוצב מקצועי!"
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="speech-box">
+<strong>דקה 29-30: סיכום ההדגמה</strong>
+
+"רואים מה עשינו פה?
+
+תוך 15 דקות יצרנו:
+✅ תכנית עבודה מפורטת
+✅ רעיונות יצירתיים
+✅ מידע ומקורות
+✅ אתר הרשמה
+✅ חומרי שיווק
+
+וזה מה שאתם תעשו עכשיו - לבד!
+עם הפרויקט שלכם!"
+                    </div>
+                </div>
+            </div>
+
+            <!-- שקף 11-12: עבודה עצמאית -->
+            <div class="slide">
+                <div class="slide-header">
+                    <h1>💪 שקפים 11-12: עבודה עצמאית</h1>
+                    <span class="time-badge">⏱️ דקות 30-70 (40 דקות!)</span>
+                </div>
+
+                <div class="tech-box">
+                    <strong>מה על המסך:</strong>
+                    <p>שקף עם ההוראות לעבודה + טיימר של 40 דקות</p>
+                </div>
+
+                <div class="content-section">
+                    <h3>📋 הוראות לעבודה (דקה 30-32)</h3>
+                    
+                    <div class="speech-box">
+<strong>הקראת ההוראות:</strong>
+
+"עכשיו תורכם!
+
+המשימה:
+🎯 בחרו פרויקט חברתי/התנדבותי שאתם רוצים לעשות
+
+📝 צרו תכנית עבודה מלאה עם:
+1. תיאור הפרויקט והמטרה
+2. משימות ספציפיות
+3. לוח זמנים
+4. רשימת משאבים
+5. תוצר אחד לפחות (אתר/פוסטר/מצגת)
+
+⏱️ יש לכם 40 דקות!
+
+🤝 אפשר לעבוד לבד או בזוגות
+
+❓ אני כאן לעזור - תרימו יד!"
+                    </div>
+                </div>
+
+                <div class="action-box">
+                    <strong>רעיונות לפרויקטים (למי שצריך השראה):</strong>
+                    <ul style="margin-right: 20px; line-height: 1.8;">
+                        <li>🌳 ניקיון פארק/חוף/יער</li>
+                        <li>👵 ביקורים לקשישים</li>
+                        <li>📚 שיעורי עזר לתלמידים</li>
+                        <li>🐕 עזרה במקלט לבעלי חיים</li>
+                        <li>🎨 פעילות אומנות לילדים</li>
+                        <li>🍲 הכנת ארוחות לנזקקים</li>
+                        <li>♻️ יום מיחזור בשכונה</li>
+                        <li>📖 קריאה לילדים בגני ילדים</li>
+                        <li>🏃 ריצה/אופניים למטרה טובה</li>
+                        <li>💻 סדנת מחשבים למבוגרים</li>
+                    </ul>
+                </div>
+
+                <div class="content-section">
+                    <h3>🎯 צ'קליסט למשתתף</h3>
+                    
+                    <div class="checklist">
+                        <div class="checklist-item">
+                            <input type="checkbox" id="work1">
+                            <label for="work1">✅ בחרתי פרויקט ספציפי</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="work2">
+                            <label for="work2">✅ כתבתי פרומפט מפורט ל-Claude</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="work3">
+                            <label for="work3">✅ קיבלתי תכנית עבודה</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="work4">
+                            <label for="work4">✅ שיפרתי את התכנית עם פרומפטים נוספים</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="work5">
+                            <label for="work5">✅ יצרתי לפחות תוצר אחד (אתר/פוסטר/מסמך)</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="work6">
+                            <label for="work6">✅ התוכן מוכן להצגה!</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tip-box">
+                    <strong>💡 טיפים למנחה במהלך העבודה:</strong>
+                    <ul style="margin-right: 20px;">
+                        <li>הסתובב בין המשתתפים וצפה במסכים</li>
+                        <li>עזור למי שתקוע עם הפרומפטים</li>
+                        <li>שתף דוגמאות טובות שאתה רואה</li>
+                        <li>הזכר את הזמן כל 10 דקות</li>
+                        <li>עודד שיתוף פעולה</li>
+                    </ul>
+                </div>
+
+                <div class="warning-box">
+                    <strong>התראות זמן:</strong>
+                    <ul style="margin-right: 20px;">
+                        <li>⏰ דקה 40 (10 דק' עבודה): "מצוין! עוד 30 דקות"</li>
+                        <li>⏰ דקה 50 (20 דק' עבודה): "חצי הדרך! עוד 20 דקות"</li>
+                        <li>⏰ דקה 60 (30 דק' עבודה): "עוד 10 דקות - התחילו לסכם!"</li>
+                        <li>⏰ דקה 65 (35 דק' עבודה): "5 דקות אחרונות!"</li>
+                        <li>⏰ דקה 70: "זמן! תסיימו את המשפט האחרון"</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- שקף 13-14: שיתוף -->
+            <div class="slide">
+                <div class="slide-header">
+                    <h1>🎉 שקפים 13-14: שיתוף והצגות</h1>
+                    <span class="time-badge">⏱️ דקות 70-85 (15 דקות)</span>
+                </div>
+
+                <div class="tech-box">
+                    <strong>מה על המסך:</strong>
+                    <p>שקף: "זמן לשתף את מה שיצרתם!"</p>
+                </div>
+
+                <div class="speech-box">
+<strong>דקה 70-71: מעבר לשיתוף</strong>
+
+"אוקיי חברים, זמן!
+
+איזה כיף לראות אתכם עובדים!
+
+עכשיו הגיע הזמן לשתף.
+
+מי רוצה להיות ראשון ולהראות מה יצר?"
+
+[חכה למתנדב]
+
+"כל אחד יקבל 2-3 דקות:
+- תספרו איזה פרויקט בחרתם
+- תראו מה יצרתם
+- תספרו מה הפתיע אתכם"
+                </div>
+
+                <div class="content-section">
+                    <h3>🎤 פורמט ההצגות</h3>
+                    
+                    <div class="action-box">
+                        <strong>מבנה הצגה (2-3 דקות למשתתף):</strong>
+                        <ol style="margin-right: 20px; line-height: 2;">
+                            <li><strong>מה הפרויקט?</strong> (30 שניות)</li>
+                            <li><strong>מה יצרת?</strong> (60 שניות) - הצגת המסך</li>
+                            <li><strong>מה הפתיע/שמח אותך?</strong> (30 שניות)</li>
+                        </ol>
+                    </div>
+
+                    <div class="tip-box">
+                        <strong>💡 טיפים למנחה:</strong>
+                        <ul style="margin-right: 20px;">
+                            <li>תן לכל משתתף לחלוק מסך אם רוצה</li>
+                            <li>שאל שאלות מעניינות: "איזה כלי עזר לך הכי הרבה?"</li>
+                            <li>עודד אפלאוז אחרי כל הצגה</li>
+                            <li>צלם מסכים של עבודות מעניינות</li>
+                            <li>שמור על הקצב - 2-3 דקות למשתתף</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3>❓ שאלות ותשובות</h3>
+                    
+                    <div class="speech-box">
+<strong>לאחר ההצגות (דקה 83-85):</strong>
+
+"תודה לכולם על השיתוף!
+
+יש שאלות לפני שנסכם?
+
+[ענה על שאלות]
+
+שאלות נפוצות שכדאי להכין תשובות:
+- 'האם צריך לשלם בשביל הכלים?'
+- 'איך נזכור את מה שלמדנו?'
+- 'אפשר לקבל את החומרים?'
+- 'מה אם אני רוצה עזרה נוספת?'"
+                    </div>
+                </div>
+
+                <div class="action-box">
+                    <strong>רשימת משתתפים שהציגו:</strong>
+                    <div class="checklist">
+                        <div class="checklist-item">
+                            <input type="checkbox" id="present1">
+                            <label for="present1">משתתף 1: ______________</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="present2">
+                            <label for="present2">משתתף 2: ______________</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="present3">
+                            <label for="present3">משתתף 3: ______________</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="present4">
+                            <label for="present4">משתתף 4: ______________</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="present5">
+                            <label for="present5">משתתף 5: ______________</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- שקף 15-16: סיכום -->
+            <div class="slide">
+                <div class="slide-header">
+                    <h1>🎓 שקפים 15-16: סיכום וסגירה</h1>
+                    <span class="time-badge">⏱️ דקות 85-90</span>
+                </div>
+
+                <div class="tech-box">
+                    <strong>מה על המסך:</strong>
+                    <p>שקף סיכום עם הנקודות המרכזיות + קישורים</p>
+                </div>
+
+                <div class="speech-box">
+<strong>דקה 85-87: סיכום מה למדנו</strong>
+
+"אז בואו נסכם את מה שעשינו היום:
+
+📚 למדנו מה זה פרומפט ואיך כותבים אותו נכון
+
+🛠️ הכרנו 5 כלי AI חזקים:
+   • Claude - לתכנון מפורט
+   • ChatGPT - לרעיונות מהירים
+   • Gemini - למחקר
+   • Lovable - לבניית אתרים
+   • Canva - לעיצוב
+
+💪 כל אחד מכם יצר תכנית עבודה אמיתית
+
+והכי חשוב:
+אתם יכולים להמשיך להשתמש בכלים האלה לבד!"
+                </div>
+
+                <div class="content-section">
+                    <h3>📋 המשך והמלצות</h3>
+                    
+                    <div class="action-box">
+                        <strong>3 דברים שכדאי לעשות אחרי הסדנה:</strong>
+                        <ol style="margin-right: 20px; line-height: 2; font-size: 1.1em;">
+                            <li><strong>תרגלו!</strong> - השתמשו בכלים לפחות פעם ביום</li>
+                            <li><strong>שפרו את הפרומפטים</strong> - ככל שתתרגלו, תשתפרו</li>
+                            <li><strong>שתפו!</strong> - לימדו חברים ועמיתים</li>
+                        </ol>
+                    </div>
+
+                    <div class="tip-box">
+                        <strong>💡 משאבים נוספים:</strong>
+                        <ul style="margin-right: 20px; line-height: 1.8;">
+                            <li>📧 <strong>אימייל לשאלות:</strong> [הכנס כאן]</li>
+                            <li>📁 <strong>קישור לחומרי הסדנה:</strong> [הכנס כאן]</li>
+                            <li>💬 <strong>קבוצת WhatsApp:</strong> [הכנס כאן]</li>
+                            <li>🎥 <strong>הקלטת הסדנה:</strong> [הכנס כאן]</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="speech-box">
+<strong>דקה 87-89: מסר סיום</strong>
+
+"אני רוצה להגיד לכם משהו:
+
+מה שעשיתם היום זה לא רק ללמוד כלים טכנולוגיים.
+
+אתם למדתם איך להפוך רעיונות טובים למציאות.
+
+הבינה המלאכותית היא לא תחליף לכם - 
+היא כלי שעוזר לכם לממש את מה שאתם רוצים לעשות.
+
+הרעיונות החברתיים והמחויבות - זה שלכם.
+ה-AI רק עוזר לכם להגיע לשם מהר יותר.
+
+אז אני מאחל לכם שתממשו את הפרויקטים שתכננתם היום,
+ושתמשיכו להשתמש בכלים האלה לעשות טוב בעולם."
+                </div>
+
+                <div class="speech-box">
+<strong>דקה 89-90: תודה וסיום</strong>
+
+"תודה רבה לכם על ההשתתפות!
+
+הייתם מדהימים!
+
+בהצלחה עם הפרויקטים!
+
+ואם יש שאלות - אני כאן. 🙏"
+
+[אפלאוז]
+                </div>
+
+                <div class="action-box">
+                    <strong>✅ משימות למנחה אחרי הסדנה:</strong>
+                    <div class="checklist">
+                        <div class="checklist-item">
+                            <input type="checkbox" id="after1">
+                            <label for="after1">שלח חומרי הסדנה למשתתפים</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="after2">
+                            <label for="after2">צור קבוצת WhatsApp/Telegram</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="after3">
+                            <label for="after3">העלה את ההקלטה (אם יש)</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="after4">
+                            <label for="after4">שלח משוב ושאלון הערכה</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="after5">
+                            <label for="after5">תעד עבודות מעניינות</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- שקף צ'ק ליסט -->
+            <div class="slide">
+                <div class="slide-header">
+                    <h1>✅ צ'ק ליסט מלא לסדנה</h1>
+                    <span class="time-badge">בדיקה לפני ואחרי</span>
+                </div>
+
+                <div class="content-section">
+                    <h3>📋 לפני הסדנה (יום קודם)</h3>
+                    <div class="checklist">
+                        <div class="checklist-item">
+                            <input type="checkbox" id="before1">
+                            <label for="before1">בדוק חיבור אינטרנט באולם</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="before2">
+                            <label for="before2">ודא שיש מקרן ומסך</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="before3">
+                            <label for="before3">הכן חשבונות בכל 5 הכלים</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="before4">
+                            <label for="before4">הדפס חומר עזר למשתתפים</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="before5">
+                            <label for="before5">שלח תזכורת למשתתפים</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3>🎬 לפני תחילת הסדנה (30 דקות)</h3>
+                    <div class="checklist">
+                        <div class="checklist-item">
+                            <input type="checkbox" id="prep1">
+                            <label for="prep1">הגע 30 דקות לפני</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="prep2">
+                            <label for="prep2">בדוק מקרן ומסך</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="prep3">
+                            <label for="prep3">פתח את לוח הבקרה הזה</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="prep4">
+                            <label for="prep4">פתח 5 טאבים: Claude, ChatGPT, Gemini, Lovable, Canva</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="prep5">
+                            <label for="prep5">התחבר לכל הכלים</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="prep6">
+                            <label for="prep6">בדוק שהמיקרופון עובד</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="prep7">
+                            <label for="prep7">הכן בקבוק מים</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="prep8">
+                            <label for="prep8">נשום עמוק - אתה מוכן! 😊</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3>⏰ במהלך הסדנה</h3>
+                    <div class="checklist">
+                        <div class="checklist-item">
+                            <input type="checkbox" id="during1">
+                            <label for="during1">0-5 דק': פתיחה והצגה ✓</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="during2">
+                            <label for="during2">5-15 דק': לימוד פרומפטינג ✓</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="during3">
+                            <label for="during3">15-30 דק': הדגמה חיה ✓</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="during4">
+                            <label for="during4">30-70 דק': עבודה עצמאית ✓</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="during5">
+                            <label for="during5">70-85 דק': שיתוף והצגות ✓</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="during6">
+                            <label for="during6">85-90 דק': סיכום וסגירה ✓</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3>🎯 אחרי הסדנה</h3>
+                    <div class="checklist">
+                        <div class="checklist-item">
+                            <input type="checkbox" id="post1">
+                            <label for="post1">שלח תודה למשתתפים</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="post2">
+                            <label for="post2">שלח חומרי הסדנה</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="post3">
+                            <label for="post3">צור קבוצת תמיכה</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="post4">
+                            <label for="post4">העלה הקלטה (אם יש)</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="post5">
+                            <label for="post5">שלח שאלון משוב</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="post6">
+                            <label for="post6">תעד למידה לסדנה הבאה</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tip-box">
+                    <strong>🌟 טיפ אחרון:</strong><br>
+                    זכור - אתה לא צריך להיות מושלם!<br>
+                    המשתתפים כאן כי הם רוצים ללמוד.<br>
+                    תהיה אותנטי, תהיה נלהב, תהיה עצמך.<br>
+                    <strong>בהצלחה! 🚀</strong>
+                </div>
+            </div>
+
+            <!-- כפתורי ניווט -->
+            <div class="navigation-buttons">
+                <button class="nav-button" onclick="previousSlide()">⏮️ קודם</button>
+                <button class="nav-button" onclick="nextSlide()">הבא ⏭️</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        let timerInterval;
+        let seconds = 0;
+        let isRunning = false;
+
+        function showSlide(index) {
+            const slides = document.querySelectorAll('.slide');
+            const navItems = document.querySelectorAll('.nav-item');
+            
+            // Remove active class from all
+            slides.forEach(s => s.classList.remove('active'));
+            navItems.forEach(n => n.classList.remove('active'));
+            
+            // Add active class to current
+            slides[index].classList.add('active');
+            navItems[index].classList.add('active');
+            
+            currentSlide = index;
+            updateProgress();
+        }
+
+        function nextSlide() {
+            const slides = document.querySelectorAll('.slide');
+            if (currentSlide < slides.length - 1) {
+                showSlide(currentSlide + 1);
+            }
+        }
+
+        function previousSlide() {
+            if (currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        function updateProgress() {
+            const totalSlides = 8;
+            const progress = ((currentSlide + 1) / totalSlides) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressText').textContent = Math.round(progress) + '%';
+        }
+
+        function startTimer() {
+            if (!isRunning) {
+                isRunning = true;
+                timerInterval = setInterval(() => {
+                    seconds++;
+                    updateTimerDisplay();
+                }, 1000);
+            }
+        }
+
+        function pauseTimer() {
+            isRunning = false;
+            clearInterval(timerInterval);
+        }
+
+        function resetTimer() {
+            isRunning = false;
+            clearInterval(timerInterval);
+            seconds = 0;
+            updateTimerDisplay();
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            const display = `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            document.getElementById('mainTimer').textContent = display;
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') previousSlide();
+            if (e.key === 'ArrowLeft') nextSlide();
+            if (e.key === ' ') {
+                e.preventDefault();
+                if (isRunning) pauseTimer();
+                else startTimer();
+            }
+        });
+
+        // Initialize
+        updateProgress();
+    </script>
+</body>
+</html>
